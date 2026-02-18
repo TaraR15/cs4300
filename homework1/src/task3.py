@@ -9,6 +9,7 @@ def first_10_primes():
     primes = []
     num = 2
     while len(primes) < 10:
+        #If the remainder is not 0 for any number other than 1 and the number itself
         if all(num % i != 0 for i in range(2, num)):
             primes.append(num)
         num += 1
