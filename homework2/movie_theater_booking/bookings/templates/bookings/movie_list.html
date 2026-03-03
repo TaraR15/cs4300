@@ -61,7 +61,7 @@
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">
                             <i class="fas fa-sign-in-alt me-1"></i>Login
                         </a>
                     </li>

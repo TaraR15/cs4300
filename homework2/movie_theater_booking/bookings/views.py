@@ -5,13 +5,15 @@ from rest_framework.response import Response
 from .models import Movie, Seat, Booking
 from .serializers import MovieSerializer, SeatSerializer, BookingSerializer
 # Create your views here.
-
+from django.contrib.auth.decorators import login_required
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import render
 from .models import Movie, Seat, Booking
 from .serializers import MovieSerializer, SeatSerializer, BookingSerializer
+from django.conf import settings
+from django.shortcuts import redirect
 
 # API Views
 class MovieViewSet(viewsets.ModelViewSet):
@@ -53,6 +55,7 @@ def movie_list(request):
     movies = Movie.objects.all()
     return render(request, 'bookings/movie_list.html', {'movies': movies})
 
+@login_required
 def seat_booking(request, movie_id):
     movie = Movie.objects.get(id=movie_id)
     seats = Seat.objects.all()
@@ -62,6 +65,9 @@ def seat_booking(request, movie_id):
     })
 
 def booking_history(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+    
     bookings = Booking.objects.filter(user=request.user)
     return render(request, 'bookings/booking_history.html', {'bookings': bookings})
 
