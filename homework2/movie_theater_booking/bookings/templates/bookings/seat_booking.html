@@ -1,0 +1,53 @@
+{% extends 'bookings/base.html' %}
+
+{% block title %}Book Seats{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-film me-2"></i>{{ movie.title }}</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Description:</strong> {{ movie.description }}</p>
+                <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+                <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chair me-2"></i>Select Seats</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for seat in seats %}
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="card {% if seat.is_booked %}bg-secondary text-white{% else %}bg-light{% endif %} text-center">
+                            <div class="card-body p-2">
+                                <h6 class="mb-2">Seat {{ seat.seat_number }}</h6>
+                                {% if seat.is_booked %}
+                                    <span class="badge bg-danger w-100">Booked</span>
+                                {% else %}
+                                    <form method="post" action="/api/bookings/">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="movie" value="{{ movie.id }}">
+                                        <input type="hidden" name="seat" value="{{ seat.id }}">
+                                        <button type="submit" class="btn btn-sm btn-success w-100">
+                                            <i class="fas fa-check me-1"></i>Book
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
