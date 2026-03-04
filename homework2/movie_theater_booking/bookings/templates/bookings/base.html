@@ -33,43 +33,31 @@
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'movie_list' %}">
-                <i class="fas fa-film me-2"></i>Movie Theater Booking
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{% url 'movie_list' %}">
-                            <i class="fas fa-home me-1"></i>Movies
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'booking_history' %}">
-                            <i class="fas fa-history me-1"></i>My Bookings
-                        </a>
-                    </li>
-                    {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-user me-1"></i>{{ user.username }}
-                        </a>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">
-                            <i class="fas fa-sign-in-alt me-1"></i>Login
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </div>
+    <!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'movie_list' %}">
+            <i class="fas fa-film me-2"></i>Movie Theater Booking
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'movie_list' %}">
+                        <i class="fas fa-home me-1"></i>Movies
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'booking_history' %}">
+                        <i class="fas fa-history me-1"></i>All Bookings
+                    </a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Main Content -->
     <div class="container">
@@ -91,7 +79,7 @@
                 <div class="col-md-4 mb-4">
                     <div class="card movie-card">
                         <!-- Movie Poster Placeholder -->
-                        <img src="https://via.placeholder.com/300x450?text={{ movie.title|urlencode }}" 
+                        <img src="https://placehold.co/300x450/2c3e50/white?text={{ movie.title|urlencode }}" 
                              class="card-img-top" 
                              alt="{{ movie.title }}">
                         

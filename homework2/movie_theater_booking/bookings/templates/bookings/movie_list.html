@@ -3,34 +3,52 @@
 {% block title %}Movie List{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Available Movies</h2>
 <div class="row">
-    {% for movie in movies %}
-    <div class="col-md-4 mb-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title">{{ movie.title }}</h5>
-                <p class="card-text">{{ movie.description|truncatewords:30 }}</p>
-                <p class="text-muted">
-                    <small>
-                        <i class="far fa-calendar-alt me-1"></i>Release: {{ movie.release_date }}<br>
-                        <i class="far fa-clock me-1"></i>Duration: {{ movie.duration }} min
-                    </small>
-                </p>
-                <a href="{% url 'seat_booking' movie.id %}" class="btn btn-primary w-100">
-                    <i class="fas fa-chair me-2"></i>Book Seats
-                </a>
+    {% if movies %}
+        {% for movie in movies %}
+        <div class="col-md-4 mb-4">
+            <div class="card movie-card">
+                <!-- Movie Poster Placeholder -->
+                <img src="https://placehold.co/300x450/2c3e50/white?text={{ movie.title|urlencode }}" 
+                     class="card-img-top" 
+                     alt="{{ movie.title }}">
+                
+                <!-- Duration Badge -->
+                <span class="badge bg-primary duration-badge">
+                    <i class="far fa-clock me-1"></i>{{ movie.duration }} min
+                </span>
+                
+                <div class="card-body">
+                    <h5 class="card-title">{{ movie.title }}</h5>
+                    <p class="card-text text-muted">
+                        <small>
+                            <i class="far fa-calendar-alt me-1"></i>
+                            Release: {{ movie.release_date|date:"M d, Y" }}
+                        </small>
+                    </p>
+                    <p class="card-text">{{ movie.description|truncatewords:30 }}</p>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'seat_booking' movie.id %}" class="btn btn-primary">
+                            <i class="fas fa-chair me-2"></i>Book Seats
+                        </a>
+                        <small class="text-muted">
+                            <i class="fas fa-users me-1"></i>
+                            {{ movie.bookings.count }} bookings
+                        </small>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="alert alert-info text-center py-5">
-            <i class="fas fa-info-circle fa-3x mb-3"></i>
-            <h4>No Movies Available</h4>
-            <p>Check back later for new releases!</p>
+        {% endfor %}
+    {% else %}
+        <div class="col-12">
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-info-circle fa-3x mb-3"></i>
+                <h4>No Movies Available</h4>
+                <p>Check back later for new releases!</p>
+            </div>
         </div>
-    </div>
-    {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}

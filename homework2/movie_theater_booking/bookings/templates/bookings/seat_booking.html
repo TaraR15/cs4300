@@ -1,5 +1,10 @@
 {% extends 'bookings/base.html' %}
 
+<!-- VISIBLE DEBUG MARKER -->
+<div style="background-color: magenta; color: white; padding: 30px; margin: 20px; border: 10px solid black; text-align: center; font-size: 32px; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;">
+    🔴🔴🔴 THIS IS THE SEAT BOOKING PAGE FOR: {{ movie.title }} 🔴🔴🔴
+</div>
+
 {% block title %}Book Seats{% endblock %}
 
 {% block content %}

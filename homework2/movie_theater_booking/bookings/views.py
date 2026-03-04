@@ -1,63 +1,28 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
+from django.shortcuts import render, get_object_or_404
+from rest_framework import viewsets
 from .models import Movie, Seat, Booking
 from .serializers import MovieSerializer, SeatSerializer, BookingSerializer
-# Create your views here.
-from django.contrib.auth.decorators import login_required
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django.shortcuts import render
-from .models import Movie, Seat, Booking
-from .serializers import MovieSerializer, SeatSerializer, BookingSerializer
-from django.conf import settings
-from django.shortcuts import redirect
 
-# API Views
+# API Views - no authentication required
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    
-    @action(detail=True, methods=['post'])
-    def book(self, request, pk=None):
-        seat = self.get_object()
-        if seat.is_booked:
-            return Response({'error': 'Seat already booked'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
-        
-        seat.is_booked = True
-        seat.save()
-        return Response({'status': 'seat booked'})
 
 class BookingViewSet(viewsets.ModelViewSet):
-    serializer_class = BookingSerializer
-    permission_classes = [permissions.IsAuthenticated]
     queryset = Booking.objects.all()
-    
-    def get_queryset(self):
-        # Users can only see their own bookings
-        return Booking.objects.filter(user=self.request.user)
-    
-    def perform_create(self, serializer):
-        # Auto-assign the current user
-        serializer.save(user=self.request.user)
+    serializer_class = BookingSerializer
 
-# Template Views
+# Template Views - no login required
 def movie_list(request):
     movies = Movie.objects.all()
     return render(request, 'bookings/movie_list.html', {'movies': movies})
 
-@login_required
 def seat_booking(request, movie_id):
-    movie = Movie.objects.get(id=movie_id)
+    movie = get_object_or_404(Movie, id=movie_id)
     seats = Seat.objects.all()
     return render(request, 'bookings/seat_booking.html', {
         'movie': movie,
@@ -65,9 +30,6 @@ def seat_booking(request, movie_id):
     })
 
 def booking_history(request):
-    if not request.user.is_authenticated:
-        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
-    
-    bookings = Booking.objects.filter(user=request.user)
+    # Show all bookings 
+    bookings = Booking.objects.all().order_by('-booking_date')[:20]
     return render(request, 'bookings/booking_history.html', {'bookings': bookings})
-
