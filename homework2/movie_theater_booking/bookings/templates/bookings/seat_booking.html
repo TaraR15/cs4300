@@ -3,32 +3,263 @@
 {% block title %}Book Seats for {{ movie.title }}{% endblock %}
 
 {% block content %}
-<h1 class="text-primary">Booking for: {{ movie.title }}</h1>
-<p>{{ movie.description }}</p>
-<p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+<style>
+    .theater-screen {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        text-align: center;
+        padding: 15px;
+        border-radius: 50% 50% 0 0;
+        margin-bottom: 40px;
+        font-weight: bold;
+        letter-spacing: 5px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        text-transform: uppercase;
+    }
+    
+    .seat-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .seat-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .row-label {
+        width: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #666;
+    }
+    
+    .seat {
+        width: 45px;
+        height: 45px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px 8px 0 0;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .seat.available {
+        background-color: #28a745;
+        color: white;
+        box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+    }
+    
+    .seat.available:hover {
+        background-color: #218838;
+        transform: scale(1.1);
+        box-shadow: 0 6px 8px rgba(40, 167, 69, 0.4);
+    }
+    
+    .seat.booked {
+        background-color: #6c757d;
+        color: white;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    
+    .seat.selected {
+        background-color: #ffc107;
+        color: #000;
+        transform: scale(1.1);
+        box-shadow: 0 0 15px #ffc107;
+    }
+    
+    .legend {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin: 30px 0;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .legend-box {
+        width: 25px;
+        height: 25px;
+        border-radius: 5px;
+    }
+    
+    .legend-box.available {
+        background-color: #28a745;
+    }
+    
+    .legend-box.booked {
+        background-color: #6c757d;
+    }
+    
+    .legend-box.selected {
+        background-color: #ffc107;
+    }
+    
+    .movie-info-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .book-button {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 12px 40px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+    
+    .book-button:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+    }
+    
+    .book-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .screen-text {
+        font-size: 14px;
+        letter-spacing: 2px;
+        margin-top: 5px;
+    }
+</style>
 
-<h2 class="mt-4">Available Seats</h2>
 <div class="row">
-    {% for seat in seats %}
-<div class="col-md-3 col-6 mb-3">
-    <div class="card {% if seat.is_booked %}bg-secondary text-white{% else %}bg-light{% endif %} text-center">
-        <div class="card-body p-2">
-            <h6 class="mb-2">Seat {{ seat.seat_number }}</h6>
-            {% if seat.is_booked %}
-                <span class="badge bg-danger w-100">Booked</span>
-            {% else %}
-            <form method="post" action="{% url 'seat_booking' movie.id %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="seat_id" value="{{ seat.id }}">
-                    <button type="submit" class="btn btn-sm btn-success w-100">
-                        <i class="fas fa-check me-1"></i>Book
-                    </button>
-                </form>
-            {% endif %}
+    <div class="col-md-12">
+        <!-- Movie Info Card -->
+        <div class="movie-info-card">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-5">{{ movie.title }}</h1>
+                    <p class="lead">{{ movie.description }}</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+                    <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Theater Screen -->
+        <div class="theater-screen">
+            <i class="fas fa-film me-2"></i>SCREEN<i class="fas fa-film ms-2"></i>
+            <div class="screen-text">This way to movie</div>
+        </div>
+        
+        <!-- Seat Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box booked"></div>
+                <span>Booked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box selected"></div>
+                <span>Selected</span>
+            </div>
+        </div>
+        
+        <!-- Seat Grid Form -->
+        <form method="post" action="{% url 'seat_booking' movie.id %}" id="seatForm">
+            {% csrf_token %}
+            <input type="hidden" name="seat_id" id="selected_seat" value="">
+            
+            <div class="seat-grid">
+                {% regroup seats by seat_number|slice:":1" as seat_rows %}
+                {% for row in seat_rows %}
+                <div class="seat-row">
+                    <div class="row-label">{{ row.grouper }}</div>
+                    {% for seat in row.list %}
+                        <button type="button" 
+                                class="seat {% if seat.is_booked %}booked{% else %}available{% endif %}"
+                                data-seat-id="{{ seat.id }}"
+                                data-seat-number="{{ seat.seat_number }}"
+                                {% if seat.is_booked %}disabled{% endif %}
+                                onclick="selectSeat(this, '{{ seat.id }}')">
+                            {{ seat.seat_number|slice:"1:" }}
+                        </button>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="book-button" id="bookButton" disabled>
+                    <i class="fas fa-ticket-alt me-2"></i>Book Selected Seat
+                </button>
+            </div>
+        </form>
+        
+        <div class="text-center mt-3">
+            <a href="{% url 'movie_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Movies
+            </a>
         </div>
     </div>
 </div>
-{% endfor %}
-</div>
-<a href="{% url 'movie_list' %}" class="btn btn-primary mt-3">Back to Movies</a>
+
+<script>
+let selectedSeatButton = null;
+
+function selectSeat(button, seatId) {
+    // Remove selected class from previously selected seat
+    if (selectedSeatButton) {
+        selectedSeatButton.classList.remove('selected');
+    }
+    
+    // Add selected class to new seat
+    button.classList.add('selected');
+    selectedSeatButton = button;
+    
+    // Update hidden input
+    document.getElementById('selected_seat').value = seatId;
+    
+    // Enable book button
+    document.getElementById('bookButton').disabled = false;
+}
+
+// Handle form submission
+document.getElementById('seatForm').addEventListener('submit', function(e) {
+    if (!document.getElementById('selected_seat').value) {
+        e.preventDefault();
+        alert('Please select a seat first!');
+    }
+});
+</script>
 {% endblock %}
