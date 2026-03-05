@@ -15,4 +15,9 @@ urlpatterns = [
     path('', views.movie_list, name='movie_list'),
     path('book/<int:movie_id>/', views.seat_booking, name='seat_booking'),
     path('history/', views.booking_history, name='booking_history'),
+
+    #testing
+    path('', views.movie_list, name='movie_list'),
+    path('ultra-test/<int:movie_id>/', views.ultra_simple_test, name='ultra_test'),
+    path('book/<int:movie_id>/', views.seat_booking, name='seat_booking'),
 ]
