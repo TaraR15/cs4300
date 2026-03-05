@@ -13,8 +13,12 @@ class Movie(models.Model):
 
 
 class Seat(models.Model):
-    seat_number = models.CharField(max_length=10, unique=True)
+    seat_number = models.CharField(max_length=10)
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='seats', null=True, blank=True)
     is_booked = models.BooleanField(default=False)
+    
+    class Meta:
+        unique_together = ['seat_number', 'movie']  # Prevents duplicate seats for same movie
     
     def __str__(self):
         return f"Seat {self.seat_number} - {'Booked' if self.is_booked else 'Available'}"
@@ -27,9 +31,9 @@ class Booking(models.Model):
     #If a seat is deleted, all bookings under that seat will be deleted
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='bookings')
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE, related_name='bookings')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
     booking_date = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.user.username} - {self.movie.title} - Seat {self.seat.seat_number}"
+        return f"{self.movie.title} - Seat {self.seat.seat_number}"
 

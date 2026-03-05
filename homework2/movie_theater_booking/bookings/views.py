@@ -1,9 +1,11 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import viewsets
 from .models import Movie, Seat, Booking
 from .serializers import MovieSerializer, SeatSerializer, BookingSerializer
 from django.http import HttpResponse
 from .models import Movie, Seat
+from django.utils import timezone
+from django.contrib import messages
 
 from django.http import HttpResponse
 
@@ -44,7 +46,28 @@ def movie_list(request):
 
 def seat_booking(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
-    seats = Seat.objects.all()
+    # Filter seats for this specific movie
+    seats = Seat.objects.filter(movie=movie)
+    
+    if request.method == 'POST':
+        seat_id = request.POST.get('seat_id')
+        seat = get_object_or_404(Seat, id=seat_id, movie=movie)  # Ensure seat belongs to this movie
+        
+        if not seat.is_booked:
+            booking = Booking.objects.create(
+                movie=movie,
+                seat=seat,
+                user=None,
+                booking_date=timezone.now()
+            )
+            seat.is_booked = True
+            seat.save()
+            messages.success(request, f'Successfully booked seat {seat.seat_number} for {movie.title}!')
+        else:
+            messages.error(request, f'Seat {seat.seat_number} is already booked!')
+        
+        return redirect('seat_booking', movie_id=movie.id)
+    
     return render(request, 'bookings/seat_booking.html', {
         'movie': movie,
         'seats': seats

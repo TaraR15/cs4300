@@ -10,19 +10,25 @@
 <h2 class="mt-4">Available Seats</h2>
 <div class="row">
     {% for seat in seats %}
-    <div class="col-md-2 mb-3">
-        <div class="card {% if seat.is_booked %}bg-secondary{% else %}bg-success{% endif %} text-white">
-            <div class="card-body text-center">
-                <h5>Seat {{ seat.seat_number }}</h5>
-                {% if seat.is_booked %}
-                    <span class="badge bg-dark">Booked</span>
-                {% else %}
-                    <span class="badge bg-light text-dark">Available</span>
-                {% endif %}
-            </div>
+<div class="col-md-3 col-6 mb-3">
+    <div class="card {% if seat.is_booked %}bg-secondary text-white{% else %}bg-light{% endif %} text-center">
+        <div class="card-body p-2">
+            <h6 class="mb-2">Seat {{ seat.seat_number }}</h6>
+            {% if seat.is_booked %}
+                <span class="badge bg-danger w-100">Booked</span>
+            {% else %}
+            <form method="post" action="{% url 'seat_booking' movie.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="seat_id" value="{{ seat.id }}">
+                    <button type="submit" class="btn btn-sm btn-success w-100">
+                        <i class="fas fa-check me-1"></i>Book
+                    </button>
+                </form>
+            {% endif %}
         </div>
     </div>
-    {% endfor %}
+</div>
+{% endfor %}
 </div>
 <a href="{% url 'movie_list' %}" class="btn btn-primary mt-3">Back to Movies</a>
 {% endblock %}
