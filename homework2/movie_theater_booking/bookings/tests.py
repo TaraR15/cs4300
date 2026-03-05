@@ -5,6 +5,7 @@ from bookings.models import Movie, Seat, Booking
 #API testing imports
 from rest_framework.test import APIClient
 from rest_framework import status
+from django.urls import reverse
 
 
 #---------Start of unit tests-------------
@@ -96,3 +97,87 @@ class BookingModelTest(TestCase):
 
 
 #----------------Start of API tests---------------
+class MovieAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.movie = Movie.objects.create(
+            title="API Test Movie",
+            description="Test Description",
+            release_date=date(2024, 1, 1),
+            duration=120
+        )
+    
+    def test_get_movies_list(self):
+        """Test GET /api/movies/"""
+        response = self.client.get('/api/movies/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+    
+    def test_get_single_movie(self):
+        """Test GET /api/movies/{id}/"""
+        response = self.client.get(f'/api/movies/{self.movie.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'], "API Test Movie")
+
+class SeatAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.movie = Movie.objects.create(
+            title="Test Movie",
+            description="Test Description",
+            release_date=date(2024, 1, 1),
+            duration=120
+        )
+        self.seat = Seat.objects.create(
+            seat_number="A1",
+            movie=self.movie,
+            is_booked=False
+        )
+    
+    def test_get_seats_list(self):
+        """Test GET /api/seats/"""
+        response = self.client.get('/api/seats/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+class BookingAPITestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.movie = Movie.objects.create(
+            title="Test Movie",
+            description="Test Description",
+            release_date=date(2024, 1, 1),
+            duration=120
+        )
+        self.seat = Seat.objects.create(
+            seat_number="A1",
+            movie=self.movie,
+            is_booked=False
+        )
+        self.booking = Booking.objects.create(
+            movie=self.movie,
+            seat=self.seat,
+            user=None
+        )
+    
+    def test_get_bookings_list(self):
+        """Test GET /api/bookings/"""
+        response = self.client.get('/api/bookings/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+    
+    def test_create_booking(self):
+        """Test POST /api/bookings/"""
+        new_seat = Seat.objects.create(
+            seat_number="A2",
+            movie=self.movie,
+            is_booked=False
+        )
+        data = {
+            'movie': self.movie.id,
+            'seat': new_seat.id,
+            'user': None
+        }
+        response = self.client.post('/api/bookings/', data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Booking.objects.count(), 2)
