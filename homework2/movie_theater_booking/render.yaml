@@ -1,0 +1,24 @@
+databases:
+  - name: movie_theater_db
+    plan: free
+    databaseName: movie_theater
+    user: movie_user
+
+services:
+  - type: web
+    plan: free
+    name: movie-theater-booking
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn movie_theater_booking.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: movie_theater_db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com,localhost,127.0.0.1"
