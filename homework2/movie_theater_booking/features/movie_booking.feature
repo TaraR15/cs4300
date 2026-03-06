@@ -19,3 +19,20 @@ Feature: Movie Seat Booking
     When I select and book an available seat
     Then the seat should become booked
     And I should see a success message
+
+Scenario: Trying to book an already booked seat
+  Given a movie "Test Movie" exists with available seats
+  And I book seat "A1"
+  When I try to book the same seat "A1" again
+  Then I should see an error message
+  And the seat should remain booked only once
+
+Scenario: Booking with no seats available
+  Given a movie "Test Movie" exists with all seats booked
+  When I visit the seat booking page
+  Then I should see "No seats available" message
+  And the book button should be disabled
+
+Scenario: Accessing non-existent movie
+  When I try to book seats for movie ID 999
+  Then I should see a "Movie not found" error
