@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'bookings',
     'behave_django',
+    #'db_connection_pool',
 ]
 
 MIDDLEWARE = [
@@ -90,9 +91,16 @@ WSGI_APPLICATION = 'movie_theater_booking.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default='sqlite:///db.sqlite3',
-        conn_max_age=600
+        conn_max_age=600,           # Keep connections alive for 600 seconds
+        conn_health_checks=True,     # Check connection health
+        #ssl_require=True             # Ensure SSL is used
     )
 }
+
+# DATABASES['default']['OPTIONS'] = {
+#     'sslmode': 'require',
+#     'connect_timeout': 10,
+# }
 
 
 # Password validation
